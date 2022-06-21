@@ -17,7 +17,8 @@ require_once('db_config.php');
                   $email = $db->check($_POST['email']);
                   $password = $db->check(hash('SHA512',$_POST['password']));
 
-                  if($this->insert_record($firstname,$lastname,$telephone,$gender,$nationality,$username,$email,$password)){
+                  if($this->insert_record($firstname,$lastname,$telephone,$gender,$nationality,$username,$email,$password))
+                  {
                       echo "<div> your record have been saved in database </div>";
                   }else{
                     echo "<div> failed </div>";
@@ -126,11 +127,58 @@ require_once('db_config.php');
                 }
             }
 
+            // production section
+            public function products($product_name,$brand, $phone, $supplier){
+                global $db;
+                $sql = "INSERT INTO `products` (product_Name, brand, supplier_phone, supplier) VALUES ('$product_name', '$brand', '$phone', '$supplier')";
+            $res = mysqli_query($db->connection, $sql);
+            return $res;
+           
+        }
+        public function read_products(){
+            global $db;
+            $sql = "SELECT * FROM `products`";
+            $result = mysqli_query($db->connection, $sql);
+            return $result;
+        }
+
+        public function get_products($productId)
+        {
+            global $db;
+        $productId = $_GET['id'];
+        $sql = "SELECT * FROM `products` WHERE productId = '$productId'";
+        $result = mysqli_query($db->connection, $sql);
+        return $result;
+
+        }
+        public function update_products($productId,$product_name,$brand,$phone,$supplier){
+           global $db;
+           $update = "UPDATE `products` SET `product_Name` = '$product_name', `brand` = '$brand', `supplier_phone` = '$phone', `supplier` = '$supplier' WHERE `productId` = '$productId'";
+           $updated_product = mysqli_query($db->connection, $update);
+           return $updated_product;
+
+        }
+        public function delete_product($productId){
+            global $db;
+            $sql = "DELETE FROM `products` WHERE productId = '$productId'";
+            $result = mysqli_query($db->connection,$sql);
+            return $result; 
+           
+        }
+
+        //inventory section
+
+        public function inventory($product_name,$quantity)
+        {
+            global $db;
+         $sql = "INSERT INTO `stk_inventory`(productId, quantity) VALUES ((SELECT productId FROM `products` WHERE product_Name = '$product_name'), '$quantity')";
+        $res = mysqli_query($db->connection, $sql);
+        return $res;
+        }
 
     }
     
-    
-    $create = new Operations();
+    $create = new Operations(); 
     $create->Store_Record();
     $create->update(); 
     // $create->delete_record($id);
